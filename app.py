@@ -166,6 +166,9 @@ PLT = dict(
     coloraxis_colorbar=dict(tickfont=dict(color="#5A8AAA")),
 )
 
+# Polar/radar charts cannot have xaxis/yaxis keys — use this stripped variant
+PLT_POLAR = {k: v for k, v in PLT.items() if k not in ("xaxis", "yaxis", "plot_bgcolor")}
+
 C = {
     "g":  "#00FF88", "b":  "#00BFFF", "y":  "#FFD700",
     "p":  "#C77DFF", "t":  "#4ECDC4", "o":  "#FF9F1C",
@@ -698,7 +701,7 @@ elif "Clustering" in page:
             fillcolor=hex_rgba(pcolor, 0.12),
         ))
     fig_rad.update_layout(
-        **PLT, height=430,
+        **PLT_POLAR, height=430,
         polar=dict(
             bgcolor="#060E1E",
             radialaxis=dict(visible=True, range=[0, 1], gridcolor="#122040",
@@ -1017,9 +1020,22 @@ elif "Drill-Down" in page:
     if chart_type == "Scatter + Trend":
         fig_dd = px.scatter(plot_df, x=x_ax, y=y_ax,
                             color=col_ax, size=sz, size_max=18,
-                            color_discrete_sequence=SEQ, trendline="ols",
+                            color_discrete_sequence=SEQ,
                             hover_data=["A3: Industry Sector","A5: HQ Region",
                                         "DERIVED: Customer Segment","E8: NPS Score (0-10)"])
+        # Manual numpy trendline — no statsmodels dependency needed
+        _xv = pd.to_numeric(plot_df[x_ax], errors="coerce")
+        _yv = pd.to_numeric(plot_df[y_ax], errors="coerce")
+        _mask = _xv.notna() & _yv.notna()
+        if _mask.sum() > 2:
+            _m, _b = np.polyfit(_xv[_mask].values, _yv[_mask].values, 1)
+            _xs = np.linspace(_xv[_mask].min(), _xv[_mask].max(), 80)
+            fig_dd.add_trace(go.Scatter(
+                x=_xs, y=_m * _xs + _b,
+                mode="lines", name="Linear Trend",
+                line=dict(color="#FFD700", width=2, dash="dash"),
+                showlegend=True,
+            ))
     elif chart_type == "Box Plot":
         fig_dd = px.box(plot_df, x=col_ax, y=y_ax,
                         color=col_ax, color_discrete_sequence=SEQ, points="outliers")
@@ -1142,7 +1158,7 @@ elif "Drill-Down" in page:
         fillcolor=hex_rgba(C["b"], 0.06),
     ))
     fig_rv.update_layout(
-        **PLT, height=380,
+        **PLT_POLAR, height=380,
         polar=dict(
             bgcolor="#060E1E",
             radialaxis=dict(visible=True, range=[0, 1],
