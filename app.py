@@ -173,6 +173,15 @@ C = {
 }
 SEQ = [C["g"], C["b"], C["y"], C["p"], C["t"], C["o"], C["pk"], C["r"]]
 
+def hex_rgba(hex_col, alpha=0.12):
+    """Convert #RRGGBB hex to rgba() string safe for Plotly fillcolor."""
+    h = hex_col.lstrip('#')
+    if len(h) == 6:
+        r, g, b = int(h[0:2],16), int(h[2:4],16), int(h[4:6],16)
+        return f"rgba({r},{g},{b},{alpha})"
+    return hex_col  # fallback
+
+
 # ── LOAD & CACHE ──────────────────────────────────────────────────────────────
 @st.cache_data(show_spinner="⚡ Running ML models on GreenChain dataset...")
 def load_all():
@@ -686,7 +695,7 @@ elif "Clustering" in page:
         fig_rad.add_trace(go.Scatterpolar(
             r=vals_loop, theta=lbl_loop, fill="toself",
             name=pname, line=dict(color=pcolor, width=1.8),
-            fillcolor=pcolor + "20",
+            fillcolor=hex_rgba(pcolor, 0.12),
         ))
     fig_rad.update_layout(
         **PLT, height=430,
@@ -863,7 +872,7 @@ elif "Regression" in page:
         for (label, vals), clr in zip(reg["vw_raw"].items(), vw_clrs):
             fig_vwb.add_trace(go.Box(
                 y=vals, name=label, marker_color=clr,
-                line_color=clr, fillcolor=clr + "22",
+                line_color=clr, fillcolor=hex_rgba(clr, 0.13),
                 boxmean=True,
             ))
         safe_fig(fig_vwb).update_layout(height=360,
@@ -1124,13 +1133,13 @@ elif "Drill-Down" in page:
         r=seg_v + [seg_v[0]], theta=lbls + [lbls[0]],
         fill="toself", name=sel_seg,
         line=dict(color=C["g"], width=2),
-        fillcolor=C["g"] + "20",
+        fillcolor=hex_rgba(C["g"], 0.12),
     ))
     fig_rv.add_trace(go.Scatterpolar(
         r=all_v + [all_v[0]], theta=lbls + [lbls[0]],
         fill="toself", name="Full Sample",
         line=dict(color=C["b"], width=2, dash="dash"),
-        fillcolor=C["b"] + "10",
+        fillcolor=hex_rgba(C["b"], 0.06),
     ))
     fig_rv.update_layout(
         **PLT, height=380,
