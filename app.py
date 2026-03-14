@@ -167,7 +167,7 @@ PLT = dict(
 )
 
 # Polar/radar charts cannot have xaxis/yaxis keys — use this stripped variant
-PLT_POLAR = {k: v for k, v in PLT.items() if k not in ("xaxis", "yaxis", "plot_bgcolor")}
+PLT_POLAR = {k: v for k, v in PLT.items() if k not in ("xaxis", "yaxis", "plot_bgcolor", "legend", "coloraxis_colorbar")}
 
 C = {
     "g":  "#00FF88", "b":  "#00BFFF", "y":  "#FFD700",
@@ -709,7 +709,8 @@ elif "Clustering" in page:
                             tickfont=dict(color="#2A4A6A", size=8)),
             angularaxis=dict(gridcolor="#122040", tickfont=dict(color="#5A8AAA", size=10)),
         ),
-        legend=dict(orientation="h", y=-0.12),
+        legend=dict(bgcolor="#060E1E", bordercolor="#122040", borderwidth=1,
+                    font=dict(color="#5A8AAA", size=10), orientation="h", y=-0.12),
     )
     st.plotly_chart(fig_rad, use_container_width=True)
 
@@ -1538,7 +1539,8 @@ elif "Drill-Down" in page:
                             gridcolor="#122040", tickfont=dict(color="#2A4A6A", size=8)),
             angularaxis=dict(gridcolor="#122040", tickfont=dict(color="#5A8AAA", size=10)),
         ),
-        legend=dict(orientation="h", y=-0.1),
+        legend=dict(bgcolor="#060E1E", bordercolor="#122040", borderwidth=1,
+                    font=dict(color="#5A8AAA", size=10), orientation="h", y=-0.1),
     )
     st.plotly_chart(fig_rv, use_container_width=True)
 
